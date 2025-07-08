@@ -44,7 +44,7 @@ module.exports = async function handler(req, res) {
   try {
     // Route: GET /
     if (method === 'GET' && pathname === '/') {
-      return res.status(200).json({ message: 'Server is running!' });
+      return res.status(200).json({ message: 'Server is running!',pools:pool });
     }
 
     // Route: GET /api/set-database/:dbName
