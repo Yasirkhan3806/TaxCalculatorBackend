@@ -1,9 +1,19 @@
 {
-  "type": "module",
-  "dependencies": {
+  "name": "krw-tax-calculator-api",
+  "version": "1.0.0",
+  "description": "KRW Tax Calculator API",
+  "main": "api/index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.1.0",
     "express": "^5.1.0",
     "pg": "^8.16.3"
+  },
+  "scripts": {
+    "start": "node api/index.js",
+    "dev": "node api/index.js"
   }
 }

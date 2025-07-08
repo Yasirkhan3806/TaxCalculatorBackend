@@ -1,8 +1,9 @@
-const {setDatabase, pool} = require('../client.js'); // Import the PostgreSQL client
+// Use CommonJS require instead of ES6 import for better compatibility
+const {setDatabase, pool} = require('../client.js');
 
 // CORS headers for all responses
 const corsHeaders = {
-  'Access-Control-Allow-Origin': 'http://localhost:5173',
+  'Access-Control-Allow-Origin': '*', // Allow all origins for now
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
@@ -21,15 +22,24 @@ const handleCors = (req, res) => {
   return false;
 };
 
-// Main API handler
-export default async function handler(req, res) {
-  // Handle CORS
-  if (handleCors(req, res)) return;
+// Main API handler - use module.exports instead of export default
+module.exports = async function handler(req, res) {
+  try {
+    // Handle CORS
+    if (handleCors(req, res)) return;
 
-  const { method, url } = req;
-  const urlObj = new URL(url, `http://${req.headers.host}`);
-  const pathname = urlObj.pathname;
-  const query = urlObj.searchParams;
+    const { method, url } = req;
+    
+    // More robust URL parsing
+    let pathname, query;
+    try {
+      const urlObj = new URL(url, `http://${req.headers.host}`);
+      pathname = urlObj.pathname;
+      query = urlObj.searchParams;
+    } catch (urlError) {
+      console.error('URL parsing error:', urlError);
+      return res.status(400).json({ error: 'Invalid URL' });
+    }
 
   try {
     // Route: GET /
