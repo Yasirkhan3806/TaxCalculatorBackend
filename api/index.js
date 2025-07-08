@@ -169,6 +169,7 @@ if (method === 'GET' && pathname === '/api/get-kharsa-value') {
     const result = await pool.query(queryText, values);
 
     return res.status(200).json({ message: true, data: result.rows });
+    pool.release();
     
   } catch (error) {
     console.error('Khasra value error:', error);
