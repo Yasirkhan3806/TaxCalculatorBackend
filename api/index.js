@@ -167,8 +167,9 @@ module.exports = async function handler(req, res) {
       // client.release();
       return res.status(200).json({ message: true, data: result.rows });
         }catch(e){
-        res.status(500).json({message:`something is wrong with ${khasra}`});
+        return res.status(500).json({message:`something is wrong with ${khasra}`});
     }
+  }
 
     // Route not found
     return res.status(404).json({ error: 'Route not found' });
