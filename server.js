@@ -1,5 +1,5 @@
 const express = require('express');
-const {setDatabase,pool} = require('./client.cjs'); // Import the PostgreSQL client
+const {setDatabase,pool} = require('./client.js'); // Import the PostgreSQL client
 const cors = require('cors'); // Import CORS middleware
 
 
