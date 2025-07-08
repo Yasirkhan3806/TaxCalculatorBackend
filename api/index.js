@@ -130,7 +130,7 @@ module.exports = async function handler(req, res) {
       // Get mouza id
       const mouzaRes = await pool.query(`SELECT id FROM mouzas WHERE name = $1`, [location]);
       if (mouzaRes.rows.length === 0) {
-        client.release();
+        // client.release();
         return res.status(404).json({ message: 'Mouza not found' });
       }
       const mouzaId = mouzaRes.rows[0].id;
@@ -141,7 +141,7 @@ module.exports = async function handler(req, res) {
         [mouzaId]
       );
       if (classRes.rows.length === 0) {
-        client.release();
+        // client.release();
         return res.status(404).json({ message: 'Classification not found for this mouza' });
       }
 
