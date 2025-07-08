@@ -71,16 +71,16 @@ module.exports = async function handler(req, res) {
     if (method === 'GET' && pathname.startsWith('/api/get-city-data/')) {
       const cityName = pathname.split('/').pop();
       
-      const client = await pool.connect();
+      // const client = await pool.connect();
       let result;
       
       if (cityName === 'mouzas') {
-        result = await client.query(`SELECT name FROM ${cityName}`);
+        result = await pool.query(`SELECT name FROM ${cityName}`);
       } else {
-        result = await client.query(`SELECT location FROM ${cityName}`);
+        result = await pool.query(`SELECT location FROM ${cityName}`);
       }
       
-      client.release();
+      // client.release();
       return res.status(200).json({ message: true, data: result.rows });
     }
 
@@ -90,10 +90,10 @@ module.exports = async function handler(req, res) {
       const cityName = pathParts[pathParts.length - 2];
       const location = pathParts[pathParts.length - 1];
       
-      const client = await pool.connect();
-      const result = await client.query(`SELECT size_sq_yard FROM ${cityName}
+      // const client = await pool.connect();
+      const result = await pool.query(`SELECT size_sq_yard FROM ${cityName}
         WHERE location = $1`, [decodeURIComponent(location)]);
-      client.release();
+      // client.release();
       
       return res.status(200).json({ message: true, data: result.rows });
     }
@@ -104,18 +104,18 @@ module.exports = async function handler(req, res) {
       const location = query.get('location');
       const size = query.get('size');
 
-      const client = await pool.connect();
+      // const client = await pool.connect();
       let result;
       
       if (cityName === 'mouzas') {
-        result = await client.query(`SELECT value_per_sq_meter FROM land_classifications
+        result = await pool.query(`SELECT value_per_sq_meter FROM land_classifications
           WHERE id=$1`, [location]);
       } else {
-        result = await client.query(`SELECT value_per_sq_meter FROM ${cityName}
+        result = await pool.query(`SELECT value_per_sq_meter FROM ${cityName}
           WHERE location = $1 AND size_sq_yard = $2`, [location, size]);
       }
       
-      client.release();
+      // client.release();
       return res.status(200).json({ message: true, data: result.rows });
     }
 
@@ -124,10 +124,10 @@ module.exports = async function handler(req, res) {
       const khasra = query.get('khasraNumber');
       const location = query.get('location');
       
-      const client = await pool.connect();
+      // const client = await pool.connect();
 
       // Get mouza id
-      const mouzaRes = await client.query(`SELECT id FROM mouzas WHERE name = $1`, [location]);
+      const mouzaRes = await pool.query(`SELECT id FROM mouzas WHERE name = $1`, [location]);
       if (mouzaRes.rows.length === 0) {
         client.release();
         return res.status(404).json({ message: 'Mouza not found' });
@@ -135,7 +135,7 @@ module.exports = async function handler(req, res) {
       const mouzaId = mouzaRes.rows[0].id;
 
       // Get classification ids for that mouza
-      const classRes = await client.query(
+      const classRes = await pool.query(
         `SELECT id FROM land_classifications WHERE mouza_id = $1`,
         [mouzaId]
       );
@@ -161,9 +161,9 @@ module.exports = async function handler(req, res) {
       `;
 
       const values = [khasra, ...classificationIds];
-      const result = await client.query(query, values);
+      const result = await pool.query(query, values);
 
-      client.release();
+      // client.release();
       return res.status(200).json({ message: true, data: result.rows });
     }
 
