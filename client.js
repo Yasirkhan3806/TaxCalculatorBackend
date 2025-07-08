@@ -1,6 +1,8 @@
 const { Pool } = require('pg');
-const dotenv = require('dotenv');
-dotenv.config({ path: 'D:/krw/KRW tax calculator/.env' });
+
+// For Vercel, we don't need to specify the path since environment variables are automatically loaded
+// Remove the dotenv config with hardcoded path
+// dotenv.config({ path: 'D:/krw/KRW tax calculator/.env' });
 
 // Initialize the pool ONCE
 const pool = new Pool({
@@ -8,10 +10,14 @@ const pool = new Pool({
   host: process.env.PG_HOST,
   database: 'postgres',
   password: process.env.PG_PASS,
-  port: 5432,
-   ssl: {
+  port: process.env.PG_PORT || 5432,
+  ssl: {
     rejectUnauthorized: false  // Required for Supabase SSL connection
-  }
+  },
+  // Additional configuration for serverless environments
+  max: 1, // Limit connection pool size for serverless
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
 });
 
 const setDatabase = async (schemaName) => {
