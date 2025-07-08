@@ -121,6 +121,7 @@ module.exports = async function handler(req, res) {
 
     // Route: GET /api/get-kharsa-value
     if (method === 'GET' && pathname === '/api/get-kharsa-value') {
+      try{
       const khasra = query.get('khasraNumber');
       const location = query.get('location');
       
@@ -165,6 +166,8 @@ module.exports = async function handler(req, res) {
 
       // client.release();
       return res.status(200).json({ message: true, data: result.rows });
+        }catch(e){
+        res.status(500).json({message:`something is wrong with ${khasra}`});
     }
 
     // Route not found
