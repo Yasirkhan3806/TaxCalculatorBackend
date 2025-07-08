@@ -44,7 +44,7 @@ module.exports = async function handler(req, res) {
   try {
     // Route: GET /
     if (method === 'GET' && pathname === '/') {
-      return res.status(200).json({ message: 'Server is running!',pools:pool });
+      return res.status(200).json({ message: 'Server is running!'});
     }
 
     // Route: GET /api/set-database/:dbName
@@ -172,7 +172,7 @@ module.exports = async function handler(req, res) {
 
   } catch (error) {
     console.error('API Error:', error);
-    return res.status(500).json({ error: 'Internal server error',error:error });
+    return res.status(500).json({ message: 'Internal server error',error:error });
   }
 }catch(e){
 console.log(e)
