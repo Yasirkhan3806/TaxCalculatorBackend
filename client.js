@@ -15,11 +15,24 @@ const pool = new Pool({
     rejectUnauthorized: false  // Required for Supabase SSL connection
   },
   // Additional configuration for serverless environments
-  max: 1, // Limit connection pool size for serverless
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+   // Connection pool settings
+  max: 20, // Maximum number of connections
+  idleTimeoutMillis: 30000, // 30 seconds
+  connectionTimeoutMillis: 10000, // 10 seconds to establish connection
+  
+  // Query timeout
+  statement_timeout: 30000, // 30 seconds for query execution
+  
+  // Keep alive settings
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10000,
 });
 
+// Add error handling for the pool
+pool.on('error', (err, client) => {
+  console.error('Unexpected error on idle client', err);
+  process.exit(-1);
+});
 const setDatabase = async (schemaName) => {
   const client = await pool.connect();
   try {
