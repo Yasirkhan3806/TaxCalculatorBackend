@@ -120,56 +120,64 @@ module.exports = async function handler(req, res) {
     }
 
     // Route: GET /api/get-kharsa-value
-    if (method === 'GET' && pathname === '/api/get-kharsa-value') {
-      try{
-      const khasra = query.get('khasraNumber');
-      const location = query.get('location');
-      
-      // const client = await pool.connect();
-
-      // Get mouza id
-      const mouzaRes = await pool.query(`SELECT id FROM mouzas WHERE name = $1`, [location]);
-      if (mouzaRes.rows.length === 0) {
-        // client.release();
-        return res.status(404).json({ message: 'Mouza not found' });
-      }
-      const mouzaId = mouzaRes.rows[0].id;
-
-      // Get classification ids for that mouza
-      const classRes = await pool.query(
-        `SELECT id FROM land_classifications WHERE mouza_id = $1`,
-        [mouzaId]
-      );
-      if (classRes.rows.length === 0) {
-        // client.release();
-        return res.status(404).json({ message: 'Classification not found for this mouza' });
-      }
-
-      // Extract classification IDs into array
-      const classificationIds = classRes.rows.map(row => row.id);
-      
-      // Dynamically build placeholders like $2, $3, ...
-      const placeholders = classificationIds.map((_, idx) => `$${idx + 2}`).join(", ");
-
-      // Final query with dynamic IN clause
-      const query = `
-        SELECT * FROM khasra_numbers
-        WHERE classification_id IN (${placeholders}) AND (
-          (is_range = true AND range_start::int <= $1 AND range_end::int >= $1)
-          OR
-          (is_range = false AND khasra_number = $1::text)
-        );
-      `;
-
-      const values = [khasra, ...classificationIds];
-      const result = await pool.query(query, values);
-
-      // client.release();
-      return res.status(200).json({ message: true, data: result.rows });
-        }catch(e){
-        return res.status(500).json({message:`something is wrong with ${khasra}`});
+    // Route: GET /api/get-kharsa-value
+if (method === 'GET' && pathname === '/api/get-kharsa-value') {
+  const khasra = query.get('khasraNumber'); // or query.get('khasra') depending on your frontend
+  const location = query.get('location');
+  
+  try {
+    // Validate required parameters
+    if (!khasra || !location) {
+      return res.status(400).json({ 
+        message: 'Missing required parameters: khasraNumber and location' 
+      });
     }
+
+    // Get mouza id
+    const mouzaRes = await pool.query(`SELECT id FROM mouzas WHERE name = $1`, [location]);
+    if (mouzaRes.rows.length === 0) {
+      return res.status(404).json({ message: 'Mouza not found' });
+    }
+    const mouzaId = mouzaRes.rows[0].id;
+
+    // Get classification ids for that mouza
+    const classRes = await pool.query(
+      `SELECT id FROM land_classifications WHERE mouza_id = $1`,
+      [mouzaId]
+    );
+    if (classRes.rows.length === 0) {
+      return res.status(404).json({ message: 'Classification not found for this mouza' });
+    }
+
+    // Extract classification IDs into array
+    const classificationIds = classRes.rows.map(row => row.id);
+    
+    // Dynamically build placeholders like $2, $3, ...
+    const placeholders = classificationIds.map((_, idx) => `$${idx + 2}`).join(", ");
+
+    // Final query with dynamic IN clause
+    const queryText = `
+      SELECT * FROM khasra_numbers
+      WHERE classification_id IN (${placeholders}) AND (
+        (is_range = true AND range_start::int <= $1 AND range_end::int >= $1)
+        OR
+        (is_range = false AND khasra_number = $1::text)
+      );
+    `;
+
+    const values = [khasra, ...classificationIds];
+    const result = await pool.query(queryText, values);
+
+    return res.status(200).json({ message: true, data: result.rows });
+    
+  } catch (error) {
+    console.error('Khasra value error:', error);
+    return res.status(500).json({ 
+      message: `Error retrieving khasra value for ${khasra}`,
+      error: error.message 
+    });
   }
+}
 
     // Route not found
     return res.status(404).json({ error: 'Route not found' });
